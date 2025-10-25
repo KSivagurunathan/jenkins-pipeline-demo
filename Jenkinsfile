@@ -57,7 +57,8 @@ node {
     */
 
     // ✅ Updated Deploy stage using actual IP and ec2-user
-    stage('Deploy') {
+
+  stage('Deploy') {
         Map<String, String> deployTargets = [
             staging   : '34.228.197.15',
             production: 'your-production-ip-or-hostname'
@@ -71,8 +72,10 @@ node {
 
         echo "Deploying to ${targetEnv} at ${targetHost}"
     /*    sh "scp target/*.jar ec2-user@${targetHost}:/opt/app/" */
-	sh 'scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null target/*.jar ec2-user@34.228.197.15:/opt/app/'
-
+    /*    sh 'scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null target/*.jar ec2-user@34.228.197.15:/opt/app/' */
+        sshagent(['jenkins-ec2-key']) {
+            sh "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null target/*.jar ec2-user@${targetHost}:/opt/app/"
+        }
     }
 
     stage('Notify') {
