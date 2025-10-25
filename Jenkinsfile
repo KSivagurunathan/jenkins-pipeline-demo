@@ -38,6 +38,7 @@ node {
         sh 'mvn package'
     }
 
+    /*
     stage('Deploy') {
         Map<String, String> deployTargets = [
             staging   : 'staging.example.com',
@@ -52,6 +53,24 @@ node {
 
         echo "Deploying to ${targetEnv} at ${targetHost}"
         sh "scp target/*.jar user@${targetHost}:/opt/app/"
+    }
+    */
+
+    // ✅ Updated Deploy stage using actual IP and ec2-user
+    stage('Deploy') {
+        Map<String, String> deployTargets = [
+            staging   : '34.228.197.15',
+            production: 'your-production-ip-or-hostname'
+        ]
+
+        def targetEnv = params.TARGET_ENV ?: 'staging'
+        String targetHost = deployTargets[targetEnv]
+        if (!targetHost) {
+            error "Unknown target environment: ${targetEnv}"
+        }
+
+        echo "Deploying to ${targetEnv} at ${targetHost}"
+        sh "scp target/*.jar ec2-user@${targetHost}:/opt/app/"
     }
 
     stage('Notify') {
